@@ -1,4 +1,12 @@
 const { Router } = require('express');
+const { check, query } = require('express-validator');
+
+const { validateParams } = require('../middlewares/validate-params');
+const { 
+  isRoleValid, 
+  isEmailRegistered, 
+  isUserRegistered } = require('../helpers/db-user.validators');
+
 const {
   userGet,
   userPost,
@@ -8,12 +16,49 @@ const {
 
 const router = Router();
 
-router.get('/', userGet);
 
-router.post('/', userPost);
+router.get(
+  '/', 
+  [
+    query('limit', 'Limit is not valid').optional().isNumeric(),
+    query('from', 'From is not valid').optional().isNumeric(),
+    validateParams
+  ], 
+  userGet
+);
 
-router.put('/:id', userPut);
 
-router.delete('/', userDelete);
+router.post(
+  '/', 
+  [
+    check('name', 'Name is required').not().isEmpty(),
+    check('email', 'Email is not valid').isEmail().custom( isEmailRegistered ),
+    check('password', 'Password is required with minimun 6 caracteres').isLength({ min: 6 }),
+    check('rol').custom( isRoleValid ),
+    validateParams,
+  ], 
+  userPost
+);
+
+
+router.put(
+  '/:id', 
+  [
+    check('id', 'ID is not valid').isMongoId().custom( isUserRegistered ),
+    validateParams
+  ], 
+  userPut
+);
+
+
+router.delete(
+  '/:id',
+  [
+    check('id', 'ID is not valid').isMongoId().custom( isUserRegistered ),
+    validateParams
+  ], 
+  userDelete
+);
+
 
 module.exports = router;
