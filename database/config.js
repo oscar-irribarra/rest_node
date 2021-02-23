@@ -10,7 +10,7 @@ const dbConnection = async () => {
     });
     console.log('Base de datos Online!');
   } catch (error) {
-    console.error(error);
+    console.error('dbConnection():config', error);
     throw new Error('Error al Iniciar el proceso');
   }
 };
