@@ -5,6 +5,8 @@ const User = require('../models/user');
 const { validate } = require('../models/user');
 const generateJWT = require('../helpers/generate-jwt');
 
+const { googleVeriy } = require('../helpers/google-verify');
+
 const authPost = async (req = request, res = response) => {
     
     const { email, password } = req.body;
@@ -55,7 +57,55 @@ const authPost = async (req = request, res = response) => {
 
 };
 
+const googleSignIn = async ( req = request, res = response ) => {
+
+    const { id_token } = req.body;
+    
+    try {
+
+        const { email, img, name } = await googleVeriy( id_token );
+
+        let user = await User.findOne({ email });
+
+        if( !user ){
+            const data = {
+                name,
+                email,
+                password: ':P',
+                img,
+                google: true
+            };
+
+            user = new User( data );
+            await user.save();
+
+        }
+
+        if( !user.state ){
+            return res.status(401).json({
+                msg: 'Account Locked - Contact with the administrator'
+            });
+        }
+
+        const token = await generateJWT( user.id );
+
+        res.json({
+            msg: 'ok signIn',
+            token,
+            user
+        });
+
+    } catch (error) {
+        console.log('googleSignIn():auth', error)
+        res.status(400).json({
+            msg: 'Token not valid'
+        });
+    }
+
+}
+
 
 module.exports = {
-    authPost
+    authPost,
+    googleSignIn
 }
