@@ -74,6 +74,7 @@ const postProduct = async ( req, res = response ) => {
         }
 
         data.user = req.user._id;
+        data.name = data.name.toUpperCase();
     
         const product = new Product( data );
     
@@ -101,6 +102,9 @@ const putProduct = async ( req, res= response ) => {
         const { state, user, ...data } = req.body;
 
         data.user = req.user._id;
+        if( data.name ){
+            data.name = data.name.toUpperCase();
+        }
 
         const product = await Product.findByIdAndUpdate( id, data, { new: true } );
 
@@ -109,6 +113,7 @@ const putProduct = async ( req, res= response ) => {
     } catch (error) {
 
         console.log('putProduct():products', error);
+
         res.status(500).json({
             msg: 'Contact with Administrator'
         });
@@ -123,9 +128,7 @@ const deleteProduct = async ( req, res = response ) => {
 
         const product = await Product.findByIdAndUpdate( id, { state: false }, { new: true } );
 
-        res.json({
-            product
-        });
+        res.json( product );
         
     } catch (error) {
 

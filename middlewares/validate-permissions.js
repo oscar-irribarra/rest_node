@@ -17,6 +17,7 @@ const isAdminRole = (req = request, res = response, next)=> {
             msg: `Unauthorized - ${ name } is not an administrator`
         });
     } 
+    
     next();
 
 }

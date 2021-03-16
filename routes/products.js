@@ -27,7 +27,7 @@ router.post(
     [
         validateJWT,
         check('name', 'name is required').not().isEmpty(),
-        check('category', 'category is required').not().isEmpty().isMongoId().custom( isCategoryRegistered ),
+        check('category', 'category id is not valid').isMongoId().custom( isCategoryRegistered ),
         check('description', 'description is required').optional().not().isEmpty(),
         check('price', 'name is required').optional().isNumeric(),
         check('available', 'name is required').optional().isBoolean(),
@@ -41,8 +41,8 @@ router.put(
     [
         validateJWT,
         check('id', 'id is not valid').isMongoId().custom( isProductRegistered ),
-        check('name', 'name is required').not().isEmpty(),
-        check('category', 'category is required').not().isEmpty().isMongoId().custom( isCategoryRegistered ),
+        check('name', 'name is required').optional().not().isEmpty(),
+        check('category', 'category id is not valid').optional().isMongoId().custom( isCategoryRegistered ),
         check('description', 'description is required').optional().not().isEmpty(),
         check('price', 'name is required').optional().isNumeric(),
         check('available', 'name is required').optional().isBoolean(),

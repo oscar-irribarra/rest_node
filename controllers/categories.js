@@ -60,7 +60,6 @@ const getCategory = async ( req, res = response) => {
 const postCategory = async ( req, res = response ) => {
     
     const name = req.body.name.toUpperCase();
-
     
     try {  
         

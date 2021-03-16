@@ -6,16 +6,16 @@ const User = require('../models/user');
 
 const validateJWT = async (req = request, res = response, next) => {
 
-    const token = req.header('x-token');
-    const secretKey = process.env.SECRETORPRIVATEKEY;
-
-    if( !token ){
-        return res.status( 401 ).json({
-            msg: 'token not found'
-        });
-    }
-
     try {
+
+        const token = req.header('x-token');
+        const secretKey = process.env.SECRETORPRIVATEKEY;
+
+        if( !token ){
+            return res.status( 401 ).json({
+                msg: 'token not found'
+            });
+        }
 
         const { uid } = jwt.verify( token, secretKey );
 
