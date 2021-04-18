@@ -65,7 +65,7 @@ const postProduct = async ( req, res = response ) => {
     try {
         const { state, user, ...data } = req.body;
 
-        const productDb = await Product.findOne( { name: data.name } );
+        const productDb = await Product.findOne( { name: data.name.toUpperCase() } );
 
         if( productDb ){
             return res.status(400).json({
