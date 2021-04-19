@@ -1,6 +1,9 @@
 const path = require('path');
 const fs = require('fs');
 
+const cloudinary = require('cloudinary');
+cloudinary.config( process.env.CLOUDINARY_URL );
+
 const { response } = require('express');
 
 const { uploadFile } = require('../helpers/upload-file');
@@ -84,6 +87,68 @@ const updateImage = async ( req, res = response ) => {
     }
 }
 
+const updateImageCloudinary = async ( req, res = response ) => {
+
+    try {
+
+        const { id, colection } = req.params;
+
+        let model;
+
+        switch (colection) {
+            case 'users':
+
+                model = await User.findById( id );
+                if(!model){
+                    return res.status(400).json({
+                        msg: 'Id user doenst Exist: '+id
+                    });
+                }
+                
+                break;
+
+            case 'products':
+                model = await Product.findById( id );
+                if(!model){
+                    return res.status(400).json({
+                        msg: 'Id product doenst Exist: '+id
+                    });
+                }
+                break;
+        
+            default:
+                return res.status(500).json({ msg: 'colection not defined' })
+        }
+        
+            if( model.img ){
+
+                const arr = model.img.split('/');
+                const name = arr[arr.length - 1];
+                const [ publicId ] = name.split('.');
+
+                cloudinary.uploader.destroy( publicId );
+            }
+
+            const { tempFilePath } = req.files.file;
+            const { secure_url } = await cloudinary.uploader.upload( tempFilePath );
+
+
+            model.img = secure_url;
+        
+            await model.save();
+        
+            res.json(model);
+        
+    } catch (error) {
+
+        console.log('updateImageCloudinary():uploads', error);
+
+        res.status(500).json({
+            msg: 'Contact with Administrator'
+        });
+    }
+}
+
 const showImage = async (req , res = response) => {
     
     try {
@@ -119,11 +184,13 @@ const showImage = async (req , res = response) => {
 
         
             if( model.img ){
-                const pathImage = path.join( __dirname, '../uploads/', colection, model.img );
+                // const pathImage = path.join( __dirname, '../uploads/', colection, model.img );
 
-                if( fs.existsSync(pathImage) ){
-                    return res.sendFile( pathImage );
-                }
+                // if( fs.existsSync(pathImage) ){
+                //     return res.sendFile( pathImage );
+                // }
+
+                return res.send( model.img );
             }
 
             res.sendFile( path.join( __dirname, '../assets/no-image.jpg'));
@@ -138,10 +205,9 @@ const showImage = async (req , res = response) => {
     }
 }
 
-
-
 module.exports = {
     uploadFiles,
     updateImage,
-    showImage
+    showImage,
+    updateImageCloudinary
 }

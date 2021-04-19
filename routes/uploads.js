@@ -2,7 +2,7 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 
 const { validateParams, validateUploadFiles } = require('../middlewares');
-const { uploadFiles, updateImage, showImage } = require('../controllers/uploads');
+const { uploadFiles, updateImageCloudinary, showImage } = require('../controllers/uploads');
 const { availableColections } = require('../helpers/db.validators');
 
 
@@ -17,7 +17,7 @@ router.put('/:colection/:id',
         validateUploadFiles,
         validateParams
     ],
-    updateImage
+    updateImageCloudinary
 );
 
 router.get('/:colection/:id', 
